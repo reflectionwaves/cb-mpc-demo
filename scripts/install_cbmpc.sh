@@ -2,7 +2,11 @@
 set -euo pipefail
 
 CBMPC_HOME=${CBMPC_HOME:-/usr/local/opt/cbmpc}
-REPO_DIR="cb-mpc"
+
+# Always place the cb-mpc repository at the project root so running this
+# script from any directory doesn't litter the scripts folder.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$SCRIPT_DIR/../cb-mpc"
 
 # Clone cb-mpc
 if [ ! -d "$REPO_DIR" ]; then

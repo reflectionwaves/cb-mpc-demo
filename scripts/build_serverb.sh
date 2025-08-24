@@ -2,9 +2,11 @@
 set -euo pipefail
 
 CBMPC_HOME=${CBMPC_HOME:-/usr/local/opt/cbmpc}
-# Tests: ensure CBMPC_HOME exists
-[ -d "$CBMPC_HOME/include" ]
-[ -d "$CBMPC_HOME/lib" ]
+# Ensure cb-mpc installation exists and fail with a helpful message otherwise
+if [ ! -d "$CBMPC_HOME/include" ] || [ ! -d "$CBMPC_HOME/lib" ]; then
+  echo "cb-mpc not found under $CBMPC_HOME. Did you run scripts/install_cbmpc.sh?" >&2
+  exit 1
+fi
 
 echo "Using CBMPC from $CBMPC_HOME"
 
