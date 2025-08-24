@@ -3,14 +3,14 @@ set -euo pipefail
 
 CBMPC_HOME=${CBMPC_HOME:-/usr/local/opt/cbmpc}
 
-# Always place the cb-mpc repository at the project root so running this
-# script from any directory doesn't litter the scripts folder.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$SCRIPT_DIR/../cb-mpc"
+# Place the cb-mpc sources under CBMPC_HOME to avoid cluttering the project tree.
+REPO_DIR="$CBMPC_HOME/cb-mpc"
 
 # Clone cb-mpc
 if [ ! -d "$REPO_DIR" ]; then
-  git clone https://github.com/coinbase/cb-mpc.git "$REPO_DIR"
+  sudo mkdir -p "$CBMPC_HOME"
+  sudo git clone https://github.com/coinbase/cb-mpc.git "$REPO_DIR"
+  sudo chown -R "$(id -u):$(id -g)" "$REPO_DIR"
 fi
 # Test: repository exists
 [ -d "$REPO_DIR/.git" ]
