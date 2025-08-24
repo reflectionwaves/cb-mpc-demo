@@ -7,7 +7,7 @@ Example demonstrating how to build ServerB using Coinbase's [cb-mpc](https://git
 The `scripts/` directory contains helper scripts:
 
 1. `install_dependencies.sh` – installs system packages required for building and verifies they were installed.
-2. `install_cbmpc.sh` – clones and builds the `cb-mpc` repository and installs the FFI library under `/usr/local/opt/cbmpc` by default.
+2. `install_cbmpc.sh` – clones the `cb-mpc` repository into `$CBMPC_HOME/cb-mpc`, builds it, and installs the FFI library under `/usr/local/opt/cbmpc` by default.
 3. `source_cbmpc_env.sh` – sets `CBMPC_HOME`, `LD_LIBRARY_PATH`, and `PKG_CONFIG_PATH` for the current shell.
 4. `build_serverb.sh` – compiles `ServerB/mpc_partyB.cpp` using the locally installed `cb-mpc` library.
 
