@@ -1,40 +1,35 @@
-# cb-mpc demo bootstrap — Server A
+# cb-mpc demo bootstrap (with static OpenSSL) — Server A
 
-This bundle sets up a Ubuntu 24.04.3 LTS host to build and run the Coinbase **cb-mpc** library and then builds your **cb-mpc-demo** repo.
+This bundle sets up Ubuntu 24.04.3 LTS to build and run **cb-mpc** with a **static OpenSSL 3.2.0** under `/usr/local/opt/openssl@3.2.0`. Then it builds your **cb-mpc-demo**.
 
 ## TL;DR
 ```bash
-unzip serverA-bundle.zip
-cd serverA-bundle
-# (optional) review and edit ./env if needed
-cp env.sample env
-# Run everything (requires sudo privileges)
+unzip serverA-bundle-v2.zip
+cd serverA-bundle-v2
+cp env.sample env   # and edit PEER_HOST
 ./bootstrap.sh
 ```
 
-When finished, try:
+Try afterwards:
 ```bash
-# Smoke tests for the library
 ./run/run-cbmpc-tests.sh
-
-# If your demo produces a binary or run script, this will try to launch it.
-# It auto-detects common paths like ServerA/ServerB or a generic CMake build.
 ./run/run-demo.sh
 ```
 
-> **Notes**
-> - These scripts install Clang 20 via the official LLVM apt repository, along with build tools and Go.
-> - `cb-mpc` is cloned to `$HOME/cb-mpc` by default and installed to `/usr/local/opt/cbmpc`.
-> - If your environment is air‑gapped, mirror the packages and repos or inline-edit the scripts.
-> - The `env` file controls network and build options; update `PEER_HOST`, `SELF_HOST`, etc.
+### What changed vs v1?
+- Adds a **reliable, host-level** build of **OpenSSL 3.2.0 (static)** in `scripts/openssl/`.
+- Bootstrap now **builds OpenSSL first** (idempotent), then builds `cb-mpc` with the correct OpenSSL path.
+- `20-build-install-cbmpc.sh` now **cleans the previous CMake build** and exports `OPENSSL_ROOT_DIR` so CMake finds the static libs.
 
 ## File tree
 ```
-serverA-bundle/
+serverA-bundle-v2/
   bootstrap.sh
   env.sample
   scripts/
     00-install-prereqs.sh
+    05-build-static-openssl.sh
+    openssl/build-static-openssl-linux.sh
     10-clone-cbmpc.sh
     20-build-install-cbmpc.sh
     30-clone-demo.sh
@@ -49,31 +44,27 @@ serverA-bundle/
   README.md
 ```
 
-## What the scripts do
-
-1. **00-install-prereqs.sh** — Installs Clang 20, CMake, Make, Go, Git, and other build tools; configures the LLVM apt repo.
-2. **10-clone-cbmpc.sh** — Clones `coinbase/cb-mpc` into `$HOME/cb-mpc` and initializes submodules.
-3. **20-build-install-cbmpc.sh** — Builds the library (`make build`) and installs it (`sudo make install`), then builds demos and runs tests.
-4. **30-clone-demo.sh** — Clones your demo repo `reflectionwaves/cb-mpc-demo` into `$HOME/cb-mpc-demo`.
-5. **40-build-demo.sh** — Tries to build your demo with CMake (Release) using Clang 20; falls back to Make or Go if detected.
-6. **50-smoke-test.sh** — Runs a quick smoke test (`make test`) to verify the installation.
-7. **run/run-demo.sh** — Heuristically finds and runs your built demo (supports ServerA/ServerB layouts and generic builds).
-
 ## Quick role config
 
-These values live in `env.sample` (copy to `env` and edit). By default this server is **Role A**.
+Defaults to role **A**. Edit `env` as needed:
 
 ```bash
-ROLE="A"            # A or B
-SELF_HOST="0.0.0.0"      # bind address on this server
-SELF_PORT="7001"      # listen port (e.g., 7001 or 7002)
-PEER_HOST="<peer-ip-or-dns>"    # the other server
-PEER_PORT="7002"  # the other server's port
-CBMPC_DIR="$HOME/cb-mpc"
-DEMO_DIR="$HOME/cb-mpc-demo"
-USE_SUDO_INSTALL="yes"   # use sudo for 'make install'
+ROLE="A"
+SELF_HOST="0.0.0.0"
+SELF_PORT="7001"
+PEER_HOST="<peer-ip-or-dns>"
+PEER_PORT="7002"
+
+# OpenSSL / toolchain
+OPENSSL_VER="3.2.0"
+BUILD_STATIC_OPENSSL="yes"   # set "no" to skip (requires matching OpenSSL already installed)
+LLVM_VERSION="20"
 ```
 
----
-
-If you need to tailor paths, edit the env file or tweak the scripts — they are straightforward Bash.
+### Systemd
+To run on boot:
+```bash
+sudo cp systemd/cbmpc-demo.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now cbmpc-demo
+```

@@ -6,13 +6,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=%i
-WorkingDirectory=%h/serverA-bundle
-EnvironmentFile=%h/serverA-bundle/env
-ExecStart=%h/serverA-bundle/run/run-demo.sh
+WorkingDirectory=%h/serverA-bundle-v2
+EnvironmentFile=%h/serverA-bundle-v2/env
+ExecStart=%h/serverA-bundle-v2/run/run-demo.sh
 Restart=on-failure
 RestartSec=3
 
-# Security hardening (adjust as needed)
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
