@@ -2,23 +2,38 @@
 set -euo pipefail
 
 CBMPC_PREFIX=${CBMPC_HOME:-/usr/local/opt/cbmpc}
+echo "CBMPC_PREFIX set to $CBMPC_PREFIX" >&2
 
 # Determine include and library paths. Prefer the installed layout where
-# headers live under <prefix>/include and libraries under <prefix>/lib. If that
-# structure is missing, fall back to a built source tree in <prefix>/cb-mpc.
-if [ -d "$CBMPC_PREFIX/include" ] && [ -d "$CBMPC_PREFIX/lib" ]; then
-  CBMPC_INCLUDE="$CBMPC_PREFIX/include"
-  CBMPC_LIB="$CBMPC_PREFIX/lib"
-elif [ -d "$CBMPC_PREFIX/cb-mpc/ffi/c/include" ] \
-  && [ -d "$CBMPC_PREFIX/cb-mpc/target/release" ]; then
-  CBMPC_INCLUDE="$CBMPC_PREFIX/cb-mpc/ffi/c/include"
-  CBMPC_LIB="$CBMPC_PREFIX/cb-mpc/target/release"
-else
+# headers live under <prefix>/include and libraries under <prefix>/lib. Some
+# systems may place libraries in <prefix>/lib64, so account for that. If neither
+# layout is present, fall back to a built source tree in <prefix>/cb-mpc.
+if [ -d "$CBMPC_PREFIX/include" ]; then
+  if [ -d "$CBMPC_PREFIX/lib" ]; then
+    CBMPC_INCLUDE="$CBMPC_PREFIX/include"
+    CBMPC_LIB="$CBMPC_PREFIX/lib"
+  elif [ -d "$CBMPC_PREFIX/lib64" ]; then
+    CBMPC_INCLUDE="$CBMPC_PREFIX/include"
+    CBMPC_LIB="$CBMPC_PREFIX/lib64"
+  fi
+fi
+
+if [ -z "${CBMPC_INCLUDE:-}" ] || [ -z "${CBMPC_LIB:-}" ]; then
+  if [ -d "$CBMPC_PREFIX/cb-mpc/ffi/c/include" ] \
+     && [ -d "$CBMPC_PREFIX/cb-mpc/target/release" ]; then
+    CBMPC_INCLUDE="$CBMPC_PREFIX/cb-mpc/ffi/c/include"
+    CBMPC_LIB="$CBMPC_PREFIX/cb-mpc/target/release"
+  fi
+fi
+
+if [ -z "${CBMPC_INCLUDE:-}" ] || [ -z "${CBMPC_LIB:-}" ]; then
   echo "cb-mpc not found under $CBMPC_PREFIX. Did you run scripts/install_cbmpc.sh?" >&2
+  ls -al "$CBMPC_PREFIX" >&2 || true
   exit 1
 fi
 
-echo "Using CBMPC from $CBMPC_PREFIX"
+echo "Using CBMPC include: $CBMPC_INCLUDE" >&2
+echo "Using CBMPC lib: $CBMPC_LIB" >&2
 
 # Create build directory
 mkdir -p build
