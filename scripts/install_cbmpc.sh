@@ -21,9 +21,14 @@ git submodule update --init --recursive
 # Test: presence of Cargo.toml indicates repository ready
 [ -f Cargo.toml ]
 
-# Build FFI library
+# Build core cb-mpc library first to ensure sources are compiled
+cargo build --release -p cb-mpc
+# Test: core library built
+[ -f target/release/libcb_mpc.rlib ]
+
+# Build FFI library that ServerB links against
 cargo build --release -p cb-mpc-ffi
-# Test: library built
+# Test: FFI library built
 [ -f target/release/libcbmpc.a ]
 
 # Install library and header
