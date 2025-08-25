@@ -30,3 +30,5 @@ source ./scripts/source_cbmpc_env.sh
 ```
 
 Adjust `CBMPC_HOME` if the cb-mpc library is installed in a different location.
+The scripts will also check `$CBMPC_HOME/cb-mpc` in case the library and
+headers were installed inside the cb-mpc repository itself.
