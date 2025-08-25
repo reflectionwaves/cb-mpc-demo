@@ -4,26 +4,23 @@ set -euo pipefail
 CBMPC_PREFIX=${CBMPC_HOME:-/usr/local/opt/cbmpc}
 echo "CBMPC_PREFIX set to $CBMPC_PREFIX" >&2
 
-# Determine include and library paths. Prefer the installed layout where
-# headers live under <prefix>/include and libraries under <prefix>/lib. Some
-# systems may place libraries in <prefix>/lib64, so account for that. If neither
-# layout is present, fall back to a built source tree in <prefix>/cb-mpc.
-if [ -d "$CBMPC_PREFIX/include" ]; then
-  if [ -d "$CBMPC_PREFIX/lib" ]; then
-    CBMPC_INCLUDE="$CBMPC_PREFIX/include"
-    CBMPC_LIB="$CBMPC_PREFIX/lib"
-  elif [ -d "$CBMPC_PREFIX/lib64" ]; then
-    CBMPC_INCLUDE="$CBMPC_PREFIX/include"
-    CBMPC_LIB="$CBMPC_PREFIX/lib64"
-  fi
-fi
-
-if [ -z "${CBMPC_INCLUDE:-}" ] || [ -z "${CBMPC_LIB:-}" ]; then
-  if [ -d "$CBMPC_PREFIX/cb-mpc/ffi/c/include" ] \
-     && [ -d "$CBMPC_PREFIX/cb-mpc/target/release" ]; then
-    CBMPC_INCLUDE="$CBMPC_PREFIX/cb-mpc/ffi/c/include"
-    CBMPC_LIB="$CBMPC_PREFIX/cb-mpc/target/release"
-  fi
+# Determine include and library paths. Support three layouts:
+# 1) an installed prefix with include/ and lib/ (or lib64/) directories,
+# 2) a source checkout provided directly via CBMPC_HOME containing
+#    ffi/c/include and target/release, or
+# 3) a checkout nested under <prefix>/cb-mpc with the same structure.
+if [ -d "$CBMPC_PREFIX/include" ] && [ -d "$CBMPC_PREFIX/lib" ]; then
+  CBMPC_INCLUDE="$CBMPC_PREFIX/include"
+  CBMPC_LIB="$CBMPC_PREFIX/lib"
+elif [ -d "$CBMPC_PREFIX/include" ] && [ -d "$CBMPC_PREFIX/lib64" ]; then
+  CBMPC_INCLUDE="$CBMPC_PREFIX/include"
+  CBMPC_LIB="$CBMPC_PREFIX/lib64"
+elif [ -d "$CBMPC_PREFIX/ffi/c/include" ] && [ -d "$CBMPC_PREFIX/target/release" ]; then
+  CBMPC_INCLUDE="$CBMPC_PREFIX/ffi/c/include"
+  CBMPC_LIB="$CBMPC_PREFIX/target/release"
+elif [ -d "$CBMPC_PREFIX/cb-mpc/ffi/c/include" ] && [ -d "$CBMPC_PREFIX/cb-mpc/target/release" ]; then
+  CBMPC_INCLUDE="$CBMPC_PREFIX/cb-mpc/ffi/c/include"
+  CBMPC_LIB="$CBMPC_PREFIX/cb-mpc/target/release"
 fi
 
 if [ -z "${CBMPC_INCLUDE:-}" ] || [ -z "${CBMPC_LIB:-}" ]; then
