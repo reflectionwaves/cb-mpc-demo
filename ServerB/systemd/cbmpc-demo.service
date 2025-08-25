@@ -1,0 +1,22 @@
+[Unit]
+Description=cb-mpc demo service (Server B)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+WorkingDirectory=%h/serverB-bundle
+EnvironmentFile=%h/serverB-bundle/env
+ExecStart=%h/serverB-bundle/run/run-demo.sh
+Restart=on-failure
+RestartSec=3
+
+# Security hardening (adjust as needed)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target
