@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Best-effort builder for a repo that may contain CMake, Make, Go, or simple run scripts.
 source "$(dirname "$0")/../env" 2>/dev/null || source "$(dirname "$0")/../env.sample"
 
 DEMO_DIR="${DEMO_DIR:-$HOME/cb-mpc-demo}"
@@ -55,10 +54,8 @@ try_go() {
   return 1
 }
 
-# Try at repo root
 try_cmake "${DEMO_DIR}" || try_make "${DEMO_DIR}" || try_go "${DEMO_DIR}" || true
 
-# Try common subdirs
 for d in "${DEMO_DIR}/ServerA" "${DEMO_DIR}/ServerB" "${DEMO_DIR}/src" "${DEMO_DIR}/app" ; do
   [[ -d "$d" ]] || continue
   try_cmake "$d" || try_make "$d" || try_go "$d" || true
