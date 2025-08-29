@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.20)
+project(mpc_partyA LANGUAGES CXX)
+
 add_executable(mpc_partyA mpc_partyA.cpp)
 
 target_include_directories(mpc_partyA PRIVATE "${CBMPC_INCLUDE_DIR}")
