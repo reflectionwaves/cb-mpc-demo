@@ -5,7 +5,8 @@
 #include <vector>
 
 #include <cbmpc/protocol/ecdsa_2p.h>
-#include <cbmpc/crypto/ec.h>
+// EC utilities moved under crypto/ec/ in recent cb-mpc versions
+#include <cbmpc/crypto/ec/ec.h>
 #include <cbmpc/core/mem.h>
 #include <cbmpc/core/error.h>
 #include <cbmpc/protocol/data_transport.h>

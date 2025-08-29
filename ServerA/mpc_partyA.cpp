@@ -6,7 +6,8 @@
 
 // cb-mpc
 #include <cbmpc/protocol/ecdsa_2p.h>       // coinbase::mpc::ecdsa2pc::{dkg, sign}
-#include <cbmpc/crypto/ec.h>               // curve definitions, key utils
+// Newer versions of cb-mpc moved EC helpers under crypto/ec/.
+#include <cbmpc/crypto/ec/ec.h>            // curve definitions, key utils
 #include <cbmpc/core/mem.h>
 #include <cbmpc/core/error.h>
 #include <cbmpc/protocol/data_transport.h>
